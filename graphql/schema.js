@@ -12,6 +12,11 @@ const typeDefs = gql`
     inPhotos: [Photo!]!
   }
 
+  type AuthPayload {
+    token: String!
+    user: User!
+  }
+
   # Photo
   type Photo {
     id: ID!
@@ -40,12 +45,18 @@ const typeDefs = gql`
 
   # Root
   type Query {
+    me: User
     totalPhotos: Int!
     allPhotos(after: DateTime): [Photo!]!
+    totalUsers: Int!
+    allUsers: [User!]!
   }
 
   type Mutation {
     postPhoto(input: PostPhotoInput!): Photo!
+    githubAuth(code: String!): AuthPayload!
+    addFakeUsers(count: Int = 1): [User!]!
+    fakeUserAuth(githubLogin: ID!): AuthPayload!
   }
 `;
 
