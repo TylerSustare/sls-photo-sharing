@@ -4,24 +4,17 @@ const { authorizeWithGithub } = require('../lib');
 
 const resolvers = {
   Query: {
-    totalPhotos: (parent, args, { db }) => {
-      return db.collection('photos')
-        .estimatedDocumentCount();
-    },
-
+    totalPhotos: (parent, args, { db }) => db.collection('photos').estimatedDocumentCount(),
     allPhotos: (parent, args, { db }) =>
-      db.collection('photos')
+      db
+        .collection('photos')
         .find()
         .toArray(),
-
     me: (parent, args, { currentUser }) => currentUser,
-
-    totalUsers: (parent, args, { db }) =>
-      db.collection('users')
-        .estimatedDocumentCount(),
-
+    totalUsers: (parent, args, { db }) => db.collection('users').estimatedDocumentCount(),
     allUsers: (parent, args, { db }) =>
-      db.collection('users')
+      db
+        .collection('users')
         .find()
         .toArray()
   },
@@ -55,7 +48,9 @@ const resolvers = {
         code
       });
       // 2. If there is a message, something went wrong
-      if (message) { throw new Error(message); }
+      if (message) {
+        throw new Error(message);
+      }
       // 3. Package the results into a single object
       const latestUserInfo = {
         name,
@@ -64,7 +59,11 @@ const resolvers = {
         avatar: avatar_url
       };
       // 4. Add or update the record with the new information
-      const { ops: [user] } = await db.collection('users').replaceOne({ githubLogin: login }, latestUserInfo, { upsert: true });
+      const {
+        ops: [user]
+      } = await db
+        .collection('users')
+        .replaceOne({ githubLogin: login }, latestUserInfo, { upsert: true });
       // 5. Return user data and their token
       return { user, token: access_token };
     },
@@ -72,8 +71,7 @@ const resolvers = {
     addFakeUsers: async (root, { count }, { db }) => {
       const randomUserApi = `https://randomuser.me/api/?results=${count}`;
 
-      const { results } = await fetch(randomUserApi)
-        .then(res => res.json());
+      const { results } = await fetch(randomUserApi).then(res => res.json());
 
       const users = results.map(r => ({
         githubLogin: r.login.username,
@@ -98,33 +96,37 @@ const resolvers = {
         token: user.githubToken,
         user
       };
-    },
+    }
   },
 
   Photo: {
     id: parent => parent.id || parent._id,
     url: parent => `http://yoursite.com/img/${parent.id}.jpg`,
-    postedBy: (parent, args, { db }) => db.collection('users').findOne({ githubLogin: parent.userID }),
-    taggedUsers: parent => tags
-      // return an array of tags that only contain the current photo
-      .filter(tag => tag.photoID === parent.id)
-      // convert array of tags into an array of userIDs
-      .map(tag => tag.userID)
-      // convert array of userIDs into array of user objects
-      .map(userID => users.find(u => u.githubLogin === userID))
+    postedBy: (parent, args, { db }) =>
+      db.collection('users').findOne({ githubLogin: parent.userID }),
+    taggedUsers: parent =>
+      tags
+        // return an array of tags that only contain the current photo
+        .filter(tag => tag.photoID === parent.id)
+        // convert array of tags into an array of userIDs
+        .map(tag => tag.userID)
+        // convert array of userIDs into array of user objects
+        .map(userID => users.find(u => u.githubLogin === userID))
   },
 
   User: {
     postedPhotos: parent => photos.filter(p => p.githubUser === parent.githubLogin),
     inPhotos: parent => {
-      return tags
-        // return array of tags that only contains current users
-        .filter(tag => tag.userID === parent.id)
-        // convert array of tags into an array of photoIDs
-        .map(tag => tag.photoID)
-        // convert array of photoIDs into an array of photo objects
-        .map(photoID => photos.find(p => p.id === photoID));
-    },
+      return (
+        tags
+          // return array of tags that only contains current users
+          .filter(tag => tag.userID === parent.id)
+          // convert array of tags into an array of photoIDs
+          .map(tag => tag.photoID)
+          // convert array of photoIDs into an array of photo objects
+          .map(photoID => photos.find(p => p.id === photoID))
+      );
+    }
   },
 
   DateTime: new GraphQLScalarType({
@@ -132,8 +134,8 @@ const resolvers = {
     description: 'A valid date time value',
     parseValue: value => new Date(value),
     serialize: value => new Date(value).toISOString(),
-    parseLiteral: ast => ast.value,
-  }),
+    parseLiteral: ast => ast.value
+  })
 };
 
 // Some data
@@ -150,14 +152,14 @@ let photos = [
     description: 'The heart chute is one of my favorite chutes',
     category: 'ACTION',
     githubUser: 'gPlake',
-    created: '3-28-1977',
+    created: '3-28-1977'
   },
   {
     id: '2',
     name: 'Enjoying the sunshine',
     category: 'SELFIE',
     githubUser: 'sSchmidt',
-    created: '3-28-1985',
+    created: '3-28-1985'
   },
   {
     id: '3',
@@ -165,7 +167,7 @@ let photos = [
     description: '25 laps on gunbarrel today',
     category: 'LANDSCAPE',
     githubUser: 'sSchmidt',
-    created: '2018-04-15T19:09:57.308Z',
+    created: '2018-04-15T19:09:57.308Z'
   }
 ];
 
@@ -180,5 +182,5 @@ const tags = [
 const _id = 0;
 
 module.exports = {
-  resolvers,
+  resolvers
 };
