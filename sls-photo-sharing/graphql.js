@@ -3,11 +3,12 @@ const { MongoClient } = require('mongodb');
 const { typeDefs } = require('./graphql/schema');
 const { resolvers } = require('./graphql/resolvers');
 
-const CONNECTION_STRING = 'mongodb+srv://sustare_atlas_user:sustare_atlas_user@photoshare-ltebu.mongodb.net/photoshare?retryWrites=true&w=majority';
+const CONNECTION_STRING =
+  'mongodb+srv://sustare_atlas_user:sustare_atlas_user@photoshare-ltebu.mongodb.net/photoshare?retryWrites=true&w=majority';
 let db;
 
 const buildGraphQlContext = async ({ context, event }) => {
-  const githubToken = event.headers.Authorization;
+  const githubToken = event.headers.Authorization || event.headers.authorization;
   const currentUser = await db.collection('users').findOne({ githubToken });
   return {
     headers: event.headers,
@@ -15,7 +16,7 @@ const buildGraphQlContext = async ({ context, event }) => {
     currentUser,
     context,
     event,
-    db,
+    db
   };
 };
 
@@ -42,11 +43,10 @@ const run = async (event, context) => {
     // console.log('db was defined');
   }
 
-
   const server = new ApolloServer({
     typeDefs,
     resolvers,
-    context: buildGraphQlContext,
+    context: buildGraphQlContext
   });
   const handler = server.createHandler({ cors: { credentials: true, origin: '*' } });
   const response = await runHandler(event, context, handler);
