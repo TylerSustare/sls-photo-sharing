@@ -29,7 +29,7 @@ const typeDefs = gql`
     created: DateTime!
   }
 
-   enum PhotoCategory {
+  enum PhotoCategory {
     SELFIE
     PORTRAIT
     ACTION
@@ -37,9 +37,9 @@ const typeDefs = gql`
     GRAPHIC
   }
 
- input PostPhotoInput {
+  input PostPhotoInput {
     name: String!
-    category: PhotoCategory=PORTRAIT
+    category: PhotoCategory = PORTRAIT
     description: String
   }
 
@@ -61,5 +61,5 @@ const typeDefs = gql`
 `;
 
 module.exports = {
-    typeDefs,
+  typeDefs
 };

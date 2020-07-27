@@ -24,7 +24,9 @@
   },
   "dependencies": {
     "apollo-server-lambda": "^2.9.7",
+    "aws-lambda-graphql": "^0.11.0",
     "graphql": "^14.5.8",
+    "graphql-subscriptions": "^1.1.0",
     "mongodb": "^3.3.3"
   }
 }
