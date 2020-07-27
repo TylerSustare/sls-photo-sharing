@@ -27,6 +27,8 @@ provider:
   runtime: nodejs10.x
   stage: dev
   region: us-east-1
+  logs:
+    websocket: true
 
 # you can add statements to the Lambda function's IAM Role here
 #  iamRoleStatements:
@@ -62,14 +64,22 @@ functions:
     # this is formatted as <FILENAME>.<HANDLER>
     handler: graphql.graphqlHandler
     events:
-    - http:
-        path: graphql
-        method: post
-        cors: true
-    - http:
-        path: graphql
-        method: get
-        cors: true
+      - http:
+          path: graphql
+          method: post
+          cors: true
+      - http:
+          path: graphql
+          method: get
+          cors: true
+      - websocket:
+        route: $connect
+      - websocket:
+        route: $disconnect
+      - websocket:
+        route: $default
+      - websocket:
+        route: graphql
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details

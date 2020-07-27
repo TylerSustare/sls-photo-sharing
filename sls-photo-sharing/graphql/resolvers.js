@@ -20,7 +20,7 @@ const resolvers = {
   },
 
   Mutation: {
-    async postPhoto(parent, args, { db, currentUser }) {
+    async postPhoto(parent, args, { db, currentUser, pubsub }) {
       // 1. If there is not a user in context, throw an error
       if (!currentUser) {
         throw new Error('only an authorized user can post a photo');
@@ -36,6 +36,8 @@ const resolvers = {
       // 3. Insert the new photo, capture the id that the database created
       const { insertedIds } = await db.collection('photos').insert(newPhoto);
       newPhoto.id = insertedIds[0];
+
+      pubsub.publish('photo-added', { newPhoto });
 
       return newPhoto;
     },
